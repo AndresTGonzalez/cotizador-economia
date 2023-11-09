@@ -2,7 +2,7 @@ import ProductCard from "@/components/ProductCard";
 import Product from "@/models/Product";
 
 export default function Home() {
-  const products: Product[] = Array.from({ length: 8 }, (_, index) => ({
+  const products: Product[] = Array.from({ length: 20 }, (_, index) => ({
     id: index + 1,
     name: `Product name ${index + 1}`,
     description: `Product description ${index + 1}`,
@@ -14,12 +14,10 @@ export default function Home() {
       <h1 className="text-3xl font-light text-neutral-800">
         Nuestros productos
       </h1>
-      <div className="overflow-x-auto">
-        <div className="grid grid-cols-1 gap-6 mt-6 sm:grid-cols-2 lg:grid-cols-5">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+      <div className="grid grid-cols-2 gap-6 mt-6 sm:grid-cols-3 lg:grid-cols-5">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     </main>
   );
