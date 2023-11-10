@@ -11,144 +11,59 @@ import {
   TableCell,
   getKeyValue,
   Input,
-  Button
+  Button,
 } from "@nextui-org/react";
-export default function Page() {
-  const rows = [
-    {
-      key: "1",
-      name: "Tony Reichert",
-      role: "CEO",
-      status: "Active",
-    },
-    {
-      key: "2",
-      name: "Zoey Lang",
-      role: "Technical Lead",
-      status: "Paused",
-    },
-    {
-      key: "3",
-      name: "Jane Fisher",
-      role: "Senior Developer",
-      status: "Active",
-    },
-    {
-      key: "4",
-      name: "William Howard",
-      role: "Community Manager",
-      status: "Vacation",
-    },
-    {
-      key: "5",
-      name: "John Doe",
-      role: "Designer",
-      status: "Active",
-    },
-    {
-      key: "6",
-      name: "Emily Smith",
-      role: "Marketing Manager",
-      status: "Paused",
-    },
-    {
-      key: "7",
-      name: "Sarah Johnson",
-      role: "Front-end Developer",
-      status: "Active",
-    },
-    {
-      key: "8",
-      name: "Michael Brown",
-      role: "HR Specialist",
-      status: "Vacation",
-    },
-    {
-      key: "9",
-      name: "Linda Wilson",
-      role: "Product Manager",
-      status: "Active",
-    },
-    {
-      key: "10",
-      name: "Robert Davis",
-      role: "Sales Representative",
-      status: "Paused",
-    },
-    {
-      key: "11",
-      name: "Amanda Anderson",
-      role: "Data Analyst",
-      status: "Active",
-    },
-    {
-      key: "12",
-      name: "James Taylor",
-      role: "QA Tester",
-      status: "Vacation",
-    },
-    {
-      key: "13",
-      name: "Emma White",
-      role: "Content Writer",
-      status: "Active",
-    },
-    {
-      key: "14",
-      name: "Mark Johnson",
-      role: "Backend Developer",
-      status: "Paused",
-    },
-    {
-      key: "15",
-      name: "Olivia Wilson",
-      role: "Customer Support",
-      status: "Active",
-    },
-    {
-      key: "16",
-      name: "Richard Moore",
-      role: "Financial Analyst",
-      status: "Vacation",
-    },
-    {
-      key: "17",
-      name: "Sophia Clark",
-      role: "IT Specialist",
-      status: "Active",
-    },
-    {
-      key: "18",
-      name: "Matthew Lewis",
-      role: "Project Manager",
-      status: "Paused",
-    },
-    {
-      key: "19",
-      name: "Grace Turner",
-      role: "Graphic Designer",
-      status: "Active",
-    },
-    {
-      key: "20",
-      name: "Daniel Hall",
-      role: "Network Engineer",
-      status: "Vacation",
-    },
-  ];
 
+interface Cuota {
+  key: number;
+  numero: number;
+  cuota: Number;
+  interes: Number;
+  seguro: Number;
+  capital: Number;
+  saldo: Number;
+}
+
+function calcularCuotaAmortizacionFrancesa(
+  principal: number, // Monto principal del préstamo
+  tasaInteresAnual: number, // Tasa de interés anual (porcentaje)
+  plazoMeses: number // Número de meses del préstamo
+): number {
+  const tasaInteresMensual = tasaInteresAnual / 12 / 100; // Tasa de interés mensual
+  const cuotas = plazoMeses; // Número de cuotas
+  const factor =
+    (tasaInteresMensual * Math.pow(1 + tasaInteresMensual, cuotas)) /
+    (Math.pow(1 + tasaInteresMensual, cuotas) - 1);
+  const cuotaMensual = principal * factor;
+  return cuotaMensual;
+}
+
+export default function Page() {
+  // const cuotas: Cuota[] = [];
   const columns = [
     {
-      key: "name",
-      label: "NAME",
+      key: "numero",
+      label: "N°",
     },
     {
-      key: "role",
-      label: "ROLE",
+      key: "cuota",
+      label: "Cuota",
     },
     {
-      key: "status",
-      label: "STATUS",
+      key: "interes",
+      label: "Interes",
+    },
+    {
+      key: "seguro",
+      label: "Seguro",
+    },
+    {
+      key: "capital",
+      label: "Capital",
+    },
+    {
+      key: "saldo",
+      label: "Saldo",
     },
   ];
 
@@ -166,9 +81,73 @@ export default function Page() {
   const [monto, setMonto] = useState(0);
   const [isInvalid, setIsInvalid] = useState(false);
   const [amortizacion, setAmortizacion] = useState(0);
+  const [cuotas, setCuotas] = useState<Cuota[]>([]);
+  const [tiempo, setTiempo] = useState(12);
+  const [tasa, setTasa] = useState(14);
+  const [seguro, setSeguro] = useState(600);
 
   const isValid = (monto: number) => {
     return monto >= 1000 && monto <= 50000;
+  };
+
+  const calcularCuotas = () => {
+    if (amortizacion === 1) {
+      return amortizacionAlemana();
+    } else if (amortizacion === 2) {
+      return amortizacionFrancesa();
+    }
+  };
+
+  const amortizacionFrancesa = () => {
+    const cuotas: Cuota[] = [];
+    let saldo = monto;
+    const seguroMensual = seguro / tiempo;
+    const cuotaMensual =
+      calcularCuotaAmortizacionFrancesa(monto, tasa, tiempo) + seguroMensual;
+    for (let i = 1; i <= tiempo; i++) {
+      let interes = saldo * (tasa / 100 / 12);
+      const capital = cuotaMensual - interes - seguroMensual;
+      saldo = saldo - capital;
+      cuotas.push({
+        key: i,
+        numero: i,
+        cuota: Number(cuotaMensual.toFixed(2)),
+        seguro: Number(seguroMensual.toFixed(2)),
+        interes: Number(interes.toFixed(2)),
+        capital: Number(capital.toFixed(2)),
+        saldo: Number(saldo.toFixed(2)),
+      });
+    }
+    setCuotas(cuotas);
+    return cuotas;
+  };
+
+  const amortizacionAlemana = () => {
+    const cuotas: Cuota[] = [];
+    let saldo = monto;
+    let capital = monto / tiempo;
+    const seguroMensual = seguro / tiempo;
+    for (let i = 1; i <= tiempo; i++) {
+      let interes = saldo * (tasa / 100 / 12);
+      saldo = saldo - capital;
+      let cuota = interes + capital + seguroMensual;
+      cuotas.push({
+        key: i,
+        numero: i,
+        cuota: Number(cuota.toFixed(2)),
+        seguro: Number(seguroMensual.toFixed(2)),
+        interes: Number(interes.toFixed(2)),
+        capital: Number(capital.toFixed(2)),
+        saldo: Number(saldo.toFixed(2)),
+      });
+    }
+    setCuotas(cuotas);
+    return cuotas;
+  };
+
+  const handleCalcular = () => {
+    const cuotas = calcularCuotas();
+    console.log(cuotas);
   };
 
   const amortizacionChange = (
@@ -217,24 +196,19 @@ export default function Page() {
             </Option>
           ))}
         </Select>
-        <Button
-          className="mt-4"
-          
-          color="primary"
-          onClick={() => console.log(amortizacion)}
-        />
+        <Button className="mt-4" color="primary" onClick={handleCalcular} />
       </div>
-      <div className="bg-orange-300 col-span-2 max-h-full rounded-2xl overflow-auto flex items-center justify-center">
+      <div className=" col-span-2 max-h-full rounded-2xl overflow-auto flex flex-col items-start justify-start">
         <Table
           aria-label="Example table with client side pagination"
           className="max-h-[80vh]"
         >
           <TableHeader>
-            <TableColumn key="name">NAME</TableColumn>
-            <TableColumn key="role">ROLE</TableColumn>
-            <TableColumn key="status">STATUS</TableColumn>
+            {columns.map((column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            ))}
           </TableHeader>
-          <TableBody items={rows}>
+          <TableBody items={cuotas}>
             {(item: any) => (
               <TableRow key={item.name}>
                 {(columnKey) => (
