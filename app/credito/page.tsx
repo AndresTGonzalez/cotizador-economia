@@ -12,6 +12,7 @@ import {
   getKeyValue,
   Input,
   Button,
+  Link,
 } from "@nextui-org/react";
 
 interface Cuota {
@@ -80,14 +81,19 @@ export default function Page() {
 
   const [monto, setMonto] = useState(0);
   const [isInvalid, setIsInvalid] = useState(false);
+  const [isInvalidTime, setIsInvalidTime] = useState(false);
   const [amortizacion, setAmortizacion] = useState(0);
   const [cuotas, setCuotas] = useState<Cuota[]>([]);
-  const [tiempo, setTiempo] = useState(12);
+  const [tiempo, setTiempo] = useState(6);
   const [tasa, setTasa] = useState(14);
   const [seguro, setSeguro] = useState(600);
 
   const isValid = (monto: number) => {
     return monto >= 1000 && monto <= 50000;
+  };
+
+  const isValidTiempo = (tiempo: number) => {
+    return tiempo >= 6 && tiempo <= 60;
   };
 
   const calcularCuotas = () => {
@@ -147,7 +153,6 @@ export default function Page() {
 
   const handleCalcular = () => {
     const cuotas = calcularCuotas();
-    console.log(cuotas);
   };
 
   const amortizacionChange = (
@@ -161,42 +166,90 @@ export default function Page() {
   return (
     <main className="grid grid-cols-3 gap-4 p-8 h-full w-screen bg-slate-50">
       <div className="bg-white shadow-xl rounded-2xl h-full p-8 max-h-[80vh] overflow-auto">
-        <h2 className="text-neutral-800 text-2xl font-medium">
-          Credito automotriz
-        </h2>
-        <Input
-          type="number"
-          placeholder="Monto a solicitar"
-          pattern="[0-9]*"
-          isInvalid={isInvalid}
-          onChange={(e) => {
-            const value = Number(e.target.value);
-            setMonto(value);
-            setIsInvalid(!isValid(value));
-          }}
-          errorMessage={
-            isInvalid && "Ingrese un monto valido entre 1000 y 50000"
-          }
-          max={50000}
-          min={1000}
-          startContent={
-            <div className="pointer-events-none flex items-center">
-              <span className="text-default-400 text-small">$</span>
+        <div className="w-full h-2/3 flex flex-col justify-between items-start">
+          <h2 className="text-neutral-800 text-2xl font-medium">
+            Credito automotriz
+          </h2>
+          <Input
+            type="number"
+            placeholder="Monto a solicitar"
+            pattern="[0-9]*"
+            isInvalid={isInvalid}
+            onChange={(e) => {
+              const value = Number(e.target.value);
+              setMonto(value);
+              setIsInvalid(!isValid(value));
+            }}
+            errorMessage={
+              isInvalid && "Ingrese un monto valido entre 1000 y 50000"
+            }
+            max={50000}
+            min={1000}
+            startContent={
+              <div className="pointer-events-none flex items-center">
+                <span className="text-default-400 text-small">$</span>
+              </div>
+            }
+          />
+          <Input
+            type="number"
+            placeholder="Tiempo de credito"
+            pattern="[0-9]*"
+            isInvalid={isInvalid}
+            onChange={(e) => {
+              const value = Number(e.target.value);
+              setTiempo(value);
+              setIsInvalidTime(!isValidTiempo(value));
+            }}
+            errorMessage={
+              isInvalidTime && "Ingrese un tiempo valido entre 6 y 60 meses"
+            }
+            max={60}
+            min={6}
+          />
+          <Select
+            placeholder="Tipo de amortización"
+            variant="soft"
+            onChange={amortizacionChange}
+            className="w-full"
+          >
+            {amortizaciones.map((amortizacion) => (
+              <Option key={amortizacion.key} value={amortizacion.key}>
+                {amortizacion.label}
+              </Option>
+            ))}
+          </Select>
+          <Button
+            className="mt-4"
+            color="primary"
+            fullWidth
+            onClick={handleCalcular}
+          >
+            Calcular
+          </Button>
+        </div>
+        <div className="h-1/3 w-full py-3">
+          <div className="flex flex-col items-start justify-between">
+            <h3 className="text-large text-neutral-700">Información</h3>
+            <div>
+              <p className="text-small text-neutral-500">
+                Monto solicitado: ${monto}
+              </p>
+              <p className="text-small text-neutral-500">
+                Tiempo de credito: {tiempo} meses
+              </p>
+              <p className="text-small text-neutral-500">
+                Tasa de interes: {tasa} %
+              </p>
+              <p className="text-small text-neutral-500">Seguro: {seguro}</p>
             </div>
-          }
-        />
-        <Select
-          placeholder="Tipo de amortización"
-          variant="soft"
-          onChange={amortizacionChange}
-        >
-          {amortizaciones.map((amortizacion) => (
-            <Option key={amortizacion.key} value={amortizacion.key}>
-              {amortizacion.label}
-            </Option>
-          ))}
-        </Select>
-        <Button className="mt-4" color="primary" onClick={handleCalcular} />
+            <div className="w-full h-fit flex justify-end">
+              <Link href="#" size="sm">
+                Generar PDF de la simulación
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
       <div className=" col-span-2 max-h-full rounded-2xl overflow-auto flex flex-col items-start justify-start">
         <Table
