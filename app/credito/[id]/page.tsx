@@ -39,8 +39,7 @@ function calcularCuotaAmortizacionFrancesa(
   return cuotaMensual;
 }
 
-export default function Page() {
-  // const cuotas: Cuota[] = [];
+export default function Page({ params }: { params: { id: string } }) {
   const columns = [
     {
       key: "numero",
@@ -152,6 +151,7 @@ export default function Page() {
   };
 
   const handleCalcular = () => {
+    console.log(params.id);
     const cuotas = calcularCuotas();
   };
 
@@ -164,11 +164,11 @@ export default function Page() {
   };
 
   return (
-    <main className="grid grid-cols-3 gap-4 p-8 h-full w-screen bg-slate-50">
+    <main className="grid grid-cols-3 gap-4 p-8 h-full w-screen bg-neutral-100">
       <div className="bg-white shadow-xl rounded-2xl h-full p-8 max-h-[80vh] overflow-auto">
         <div className="w-full h-2/3 flex flex-col justify-between items-start">
           <h2 className="text-neutral-800 text-2xl font-medium">
-            Credito automotriz
+            {params.id}
           </h2>
           <Input
             type="number"
