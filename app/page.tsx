@@ -1,17 +1,47 @@
-
+"use client";
 
 import CreditoCard from "@/components/CreditoCard";
-import Product from "@/models/Product";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { database } from "./firebase";
 
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  percent: number;
+  image: string;
+};
 
 
 export default function Home() {
-  const products: Product[] = Array.from({ length: 15 }, (_, index) => ({
-    id: index + 1,
-    name: `Product name ${index + 1}`,
-    description: `Product description ${index + 1}`,
-    percent: 0,
-  }));
+  const [products, setProducts] = useState<Array<Product>>([]);
+
+  async function fetchData() {
+    const productsCollection = collection(database, "products");
+    const productQuery = query(productsCollection);
+    const querySnapshot = await getDocs(productQuery);
+    const fetchedData: Array<Product> = [];
+    querySnapshot.forEach((doc) => {
+      fetchedData.push({ id: doc.id, ...doc.data() } as Product);
+    });
+    console.log(fetchedData);
+    setProducts(fetchedData);
+
+  }
+  // Fetch para obtener los productos desde firebase
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <main className="bg-neutral-100 h-full w-screen flex flex-row items-center">
       <div className="w-1/3 h-full bg-white p-10">
