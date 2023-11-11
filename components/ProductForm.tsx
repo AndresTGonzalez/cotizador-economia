@@ -18,7 +18,7 @@ export default function AdminForm() {
       </div>
       
       <div className="mb-4 w-full md:w-96" >
-        <Button color="success" fullWidth>
+        <Button color="primary" fullWidth>
             Aceptar
         </Button>
       </div>
