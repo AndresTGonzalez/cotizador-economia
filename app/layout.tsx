@@ -21,13 +21,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={inter.className}>
-      <Toaster
+      <body className={`${inter.className} h-screen w-screen flex flex-col`}>
+              <Toaster
         position="top-right"
         reverseOrder={false}
       />
-        <Providers>{children}</Providers>
-
+        <nav className="w-screen h-20 bg-black"></nav>
+        <div className="bg-white flex-1 flex">
+          <Providers>{children}</Providers>
+        </div>
       </body>
     </html>
   );
