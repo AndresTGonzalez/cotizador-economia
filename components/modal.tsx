@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { BiPlus } from "react-icons/bi";
 import { database } from "@/app/firebase";
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 type Product = {
   id: string,
   name: string,
@@ -81,6 +82,7 @@ export default function ModalForm({ onModalClose, data, openModal, onCloseEdit, 
           percent: 0,
           image: ''
         })
+        toast.success("Editado correctamente")
         onModalClose()
         onCloseEdit()
       } else {
@@ -100,6 +102,7 @@ export default function ModalForm({ onModalClose, data, openModal, onCloseEdit, 
           image: ''
         })
         onModalClose()
+        toast.success("Agregado correctamente")
       }
 
     } catch (error) {

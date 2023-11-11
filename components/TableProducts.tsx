@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { BiSolidChevronsDown } from "react-icons/bi";
 import ModalForm from "./modal";
+import toast from "react-hot-toast";
 
 type Product = {
     id: string,
@@ -95,7 +96,7 @@ export default function TableProducts() {
             console.log(error)
         } finally {
             setIsLoading(false)
-
+            toast.success("Eliminado correctamente")
         }
     }
 
