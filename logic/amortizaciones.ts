@@ -48,11 +48,14 @@ export function calcularAmortizacionAlemana(
   tiempo: number,
   seguro: number
 ) {
+  
   const cuotas: Cuota[] = [];
   let saldo = monto;
   let capital = monto / tiempo;
   const seguroMensual = seguro / tiempo;
+  console.log(tiempo);
   for (let i = 1; i <= tiempo; i++) {
+    console.log(i);
     let interes = saldo * (tasa / 100 / 12);
     saldo = saldo - capital;
     let cuota = interes + capital + seguroMensual;

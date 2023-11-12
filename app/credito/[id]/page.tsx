@@ -21,7 +21,7 @@ import {
 import { Cuota } from "@/models/Cuota";
 import { columnasAmortizacion } from "@/data/columnasAmortizacion";
 import { amortizaciones } from "@/data/tiposAmortizacion";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { database } from "@/app/firebase";
 import { Spinner } from "@nextui-org/react";
 
@@ -31,6 +31,13 @@ type Product = {
   description: string;
   percent: number;
   image: string;
+};
+
+type Company = {
+  id: string;
+  name: string;
+  logo: string;
+  secure: string;
 };
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -44,6 +51,19 @@ export default function Page({ params }: { params: { id: string } }) {
   const [seguro, setSeguro] = useState(600);
   const [nombre, setNombre] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
+
+  async function fetchSecure() {
+    setLoading(true);
+    const productsCollection = collection(database, "company");
+    const productQuery = query(productsCollection);
+    const querySnapshot = await getDocs(productQuery);
+    const fetchedData: Array<Company> = [];
+    querySnapshot.forEach((doc) => {
+      fetchedData.push({ id: doc.id, ...doc.data() } as Company);
+    });
+    setSeguro(Number(fetchedData[0].secure));
+    setLoading(false);
+  }
 
   async function fetchData() {
     setLoading(true);
@@ -66,6 +86,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     fetchData();
+    fetchSecure();
   }, []);
 
   const isValid = (monto: number) => {
@@ -78,19 +99,18 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const calcularCuotas = () => {
     if (amortizacion === 1) {
-      const tabla = calcularAmortizacionAlemana(monto, tiempo, tasa, seguro);
-      setCuotas(tabla);
-      return cuotas;
+      console.log("Amortizacion Alemana");
+      const tabla = calcularAmortizacionAlemana(monto, tasa, tiempo, seguro);
+      console.log(tabla);
+      return tabla;
     } else if (amortizacion === 2) {
-      const tabla = calcularAmortizacionFrancesa(monto, tiempo, tasa, seguro);
-      setCuotas(tabla);
-      return cuotas;
+      const tabla = calcularAmortizacionFrancesa(monto, tasa, tiempo, seguro);
+      return tabla;
     }
   };
 
   const handleCalcular = () => {
-    console.log(params.id);
-    const cuotas = calcularCuotas();
+    setCuotas(calcularCuotas()!);
   };
 
   const amortizacionChange = (
