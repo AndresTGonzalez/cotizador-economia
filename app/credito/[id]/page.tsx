@@ -1,7 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
-import Select from "@mui/joy/Select";
-import Option from "@mui/joy/Option";
+import { useState, useEffect, SetStateAction } from "react";
 import {
   Table,
   TableHeader,
@@ -24,6 +22,7 @@ import { amortizaciones } from "@/data/tiposAmortizacion";
 import { collection, doc, getDoc, getDocs, query } from "firebase/firestore";
 import { database } from "@/app/firebase";
 import { Spinner } from "@nextui-org/react";
+import { Select, SelectSection, SelectItem } from "@nextui-org/react";
 
 type Product = {
   id: string;
@@ -113,11 +112,8 @@ export default function Page({ params }: { params: { id: string } }) {
     setCuotas(calcularCuotas()!);
   };
 
-  const amortizacionChange = (
-    event: React.SyntheticEvent | null,
-    newValue: string | null
-  ) => {
-    setAmortizacion(Number(newValue));
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setAmortizacion(Number(e.target.value));
   };
 
   return (
@@ -171,15 +167,14 @@ export default function Page({ params }: { params: { id: string } }) {
                 min={6}
               />
               <Select
-                placeholder="Tipo de amortización"
-                variant="soft"
-                onChange={amortizacionChange}
-                className="w-full"
+                label="Tipo de amortización"
+                fullWidth
+                onChange={handleSelectionChange}
               >
                 {amortizaciones.map((amortizacion) => (
-                  <Option key={amortizacion.key} value={amortizacion.key}>
+                  <SelectItem key={amortizacion.key} value={amortizacion.key}>
                     {amortizacion.label}
-                  </Option>
+                  </SelectItem>
                 ))}
               </Select>
               <Button
@@ -209,8 +204,14 @@ export default function Page({ params }: { params: { id: string } }) {
                   </p>
                 </div>
                 <div className="w-full h-fit flex justify-end">
-                  <Link href="#" size="sm">
-                    Generar PDF de la simulación
+                  <Link
+                    href="#"
+                    size="sm"
+                    onClick={() => {
+                      window.print();
+                    }}
+                  >
+                    Imprimir la simulación
                   </Link>
                 </div>
               </div>
