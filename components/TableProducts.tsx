@@ -1,10 +1,12 @@
 "use client";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tooltip, Dropdown, DropdownTrigger, Button, DropdownMenu, DropdownItem, Spinner } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, useDisclosure, Tooltip, Dropdown, DropdownTrigger, Button, DropdownMenu, DropdownItem, Spinner } from "@nextui-org/react";
 import { database } from '@/app/firebase';
 import React, { useState, useEffect } from "react";
 import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
-import { BiSolidChevronsDown, BiPlus } from "react-icons/bi";
+import { BiSolidChevronsDown } from "react-icons/bi";
 import ModalForm from "./modal";
+import toast from "react-hot-toast";
+
 type Product = {
     id: string,
     name: string,
@@ -14,8 +16,18 @@ type Product = {
 }
 
 export default function TableProducts() {
+
     const [products, setProducts] = useState<Array<Product>>([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
+    const [edit, setEdit] = React.useState(false);
+    const [data, setData] = useState<Partial<Product>>({
+        name: '',
+        description: '',
+        percent: 0,
+        image: ''
+    });
+
     async function fetchData() {
         const productsCollection = collection(database, "products");
         const productQuery = query(productsCollection)
@@ -24,14 +36,17 @@ export default function TableProducts() {
         querySnapshot.forEach((doc) => {
             fetchedData.push({ id: doc.id, ...doc.data() } as Product)
         })
-        console.log(fetchedData);
         setProducts(fetchedData);
         setIsLoading(false);
     }
     useEffect(() => {
-
         fetchData()
     }, []);
+    
+    useEffect(() => {
+        console.log(open)
+    }, [open,data,edit]);
+    
     const handleModalClose = () => {
         fetchData()
     };
@@ -41,17 +56,35 @@ export default function TableProducts() {
         { name: "Porcentaje", uid: "percent" },
         { name: "Opciones", uid: "actions" },
     ];
+    const handleEdit = async (id:any,name:any,des:any,per:any) => {
+        setData({
+            id:id.toString(),
+            name: name.toString(),
+            description: des.toString(),
+            percent:  parseFloat(per.toString()),
+            image: ''
+        })
+        setOpen(true)
+        setEdit(true)
+    }
+    const handleCloseEdit = () => {
+        console.log("cambio")
+        setOpen(false)
+        setEdit(false)
+    };
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between gap-3 items-end">
                     <div className="flex gap-3">
-                        <ModalForm onModalClose={handleModalClose} />
+                        <ModalForm onModalClose={handleModalClose} 
+                        data={data} openModal={open} 
+                        onCloseEdit={handleCloseEdit} edit={edit}/>
                     </div>
                 </div>
             </div>
         );
-    }, []);
+    }, [open,edit]);
 
     const handleDelete = async (id: any) => {
         try {
@@ -63,13 +96,20 @@ export default function TableProducts() {
             console.log(error)
         } finally {
             setIsLoading(false)
-            
+            toast.success("Eliminado correctamente")
         }
     }
+
+
+
 
     const renderCell = React.useCallback((user: Product, columnKey: React.Key) => {
         const cellValue = user[columnKey as keyof Product];
         const id = user['id' as keyof Product]
+        const name = user['name' as keyof Product]
+        const des = user['description' as keyof Product]
+        const per = user['percent' as keyof Product]
+        
         switch (columnKey) {
             case "name":
                 return (
@@ -100,7 +140,7 @@ export default function TableProducts() {
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
-                                <DropdownItem>
+                                <DropdownItem onClick={() => handleEdit(id,name,des,per)}>
                                     Editar
                                 </DropdownItem>
                                 <DropdownItem onClick={() => handleDelete(id)}>
